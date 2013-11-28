@@ -8,10 +8,7 @@ import xml.sax
 import sys
 import re
 
-parser=handler=outfile=""
-
-tagfile=open("alltags.txt","w")
-qfile=open("allquestions.txt","w")
+parser=handler=outfile=tagfile=qfile=""
 
 
 class SOHandler(xml.sax.handler.ContentHandler):
@@ -71,9 +68,9 @@ class SOHandler(xml.sax.handler.ContentHandler):
             q_with_tags=question+tags
             q_with_tags_sanitized=re.sub(r'<[^<>]+>', '', q_with_tags)
             
-            self.tags.append(tags)
-            self.questions.append(question)
-            self.q_with_tags.append(q_with_tags_sanitized)
+            #self.tags.append(tags)
+            #self.questions.append(question)
+            #self.q_with_tags.append(q_with_tags_sanitized)
                         
             outfile.write(q_with_tags_sanitized)
             outfile.write("\n")
@@ -86,19 +83,19 @@ class SOHandler(xml.sax.handler.ContentHandler):
             qfile.write(question)
             qfile.write("\n")
             qfile.flush()
-            
+            """
             if self.counter<5:
                 print "Tags: "+str(tags)
                 print "\nQuestion: "+str(question)
                 print "\nQuestion + Tag: "+str(q_with_tags)
                 print "\nSanitized:      "+str(q_with_tags_sanitized)
                 raw_input("\n")
-
+            """
             self.counter += 1
-            if self.counter%1000==0:
-                print self.tags[-1]
-                print self.questions[-1]
-                print self.q_with_tags[-1]
+            if self.counter%10000==0:
+                print tags
+                print question
+                print q_with_tags_sanitized
                 print self.counter
             
             #if(self.counter > 1999):
@@ -107,9 +104,10 @@ class SOHandler(xml.sax.handler.ContentHandler):
             
 def return_tag_dict():
     tag_dict=defaultdict(int) 
-    with open("tags.txt","r") as readfile:
-		for tag in readfile.read().split("\n"):
-			tag_dict[tag]+=1
+    with open("alltags.txt","r") as readfile:
+        for tags in readfile.read().split("\n"):
+            for tag in tags.split(" "):
+                tag_dict[tag]+=1
     return tag_dict
 
 def check_sys_args():
@@ -118,13 +116,17 @@ def check_sys_args():
         sys.exit(1)
 
 def main():
-    global outfile,parser,handler
+    global outfile,parser,handler,tagfile,qfile
+
+    tagfile=open("alltags1.txt","w")
+    qfile=open("allquestions1.txt","w")
+
     parser = xml.sax.make_parser()
     handler = SOHandler()
     parser.setContentHandler(handler)
     
-    with open("posts_with_tags.txt","w") as outfile:
+    with open("posts_with_tags1.txt","w") as outfile:
 	    parser.parse("stackoverflow.com.7z/Posts.xml")
 
-if __name__ == "__main__":
-    main()
+#if __name__ == "__main__":
+#    main()
